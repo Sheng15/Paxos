@@ -16,6 +16,15 @@ public class StatePanel extends JPanel {
     private JTextField promiseNumField;
     private JTextField ballotNumField;
     private JTextField decreeField;
+    private JLabel stateLabel;
+    private JLabel acceptedLabel;
+    private JLabel indexLabel;
+    private JLabel voteNumLabel;
+    private JLabel prepareNumLabel;
+    private JLabel promiseNumLabel;
+    private JLabel ballotNumLabel;
+    private JLabel decreeLabel;
+
 
 
     private static Dimension preferredSize = new Dimension(85, 320);
@@ -59,33 +68,33 @@ public class StatePanel extends JPanel {
         decreeField.setHorizontalAlignment(JTextField.CENTER);
 
 
-        JLabel stateLabel = new JLabel("Current State", JLabel.RIGHT);
+        stateLabel = new JLabel("Current State", JLabel.RIGHT);
         stateLabel.setBounds(0,00,80,18);
 
-        JLabel acceptedLabel = new JLabel("Accepted Proposal", JLabel.RIGHT);
+        acceptedLabel = new JLabel("Accepted Proposal", JLabel.RIGHT);
         acceptedLabel.setBounds(0,00,80,18);
 
-        JLabel indexLabel = new JLabel("Index:", JLabel.RIGHT);
+        indexLabel = new JLabel("Index:", JLabel.RIGHT);
         indexLabel.setLabelFor(indexField);
         indexLabel.setBounds(0,00,80,18);
 
-        JLabel voteNumLabel = new JLabel("VoteNum:", JLabel.RIGHT);
-        indexLabel.setLabelFor(voteNumField);
-        indexLabel.setBounds(0,00,80,18);
+        voteNumLabel = new JLabel("VoteNum:", JLabel.RIGHT);
+        voteNumLabel.setLabelFor(voteNumField);
+        voteNumLabel.setBounds(0,00,80,18);
 
-        JLabel prepareNumLabel = new JLabel("PrepareNum:", JLabel.RIGHT);
+        prepareNumLabel = new JLabel("PrepareNum:", JLabel.RIGHT);
         prepareNumLabel.setLabelFor(indexField);
         prepareNumLabel.setBounds(10,30,80,18);
 
-        JLabel promiseNumLabel = new JLabel("PromiseNum:", JLabel.RIGHT);
+        promiseNumLabel = new JLabel("PromiseNum:", JLabel.RIGHT);
         promiseNumLabel.setLabelFor(promiseNumField);
         promiseNumLabel.setBounds(10,30,80,18);
 
-        JLabel ballotNumLabel = new JLabel("BallotNum:", JLabel.RIGHT);
+        ballotNumLabel = new JLabel("BallotNum:", JLabel.RIGHT);
         ballotNumLabel.setLabelFor(ballotNumField);
         ballotNumLabel.setBounds(10,30,80,18);
 
-        JLabel decreeLabel = new JLabel("Decree:", JLabel.RIGHT);
+        decreeLabel = new JLabel("Decree:", JLabel.RIGHT);
         decreeLabel.setLabelFor(decreeField);
         decreeLabel.setBounds(10,30,80,18);
 
@@ -143,5 +152,22 @@ public class StatePanel extends JPanel {
     public void showAcceptProposal(Proposal proposal){
         this.ballotNumField.setText(String.valueOf(proposal.getBallotNum()));
         this.decreeField.setText(proposal.getDecree());
+    }
+
+    public void setInvisiable(){
+        indexField.setVisible(false);
+        voteNumField.setVisible(false);
+        prepareNumField.setVisible(false);
+        promiseNumField.setVisible(false);
+        ballotNumField.setVisible(false);
+        decreeField.setVisible(false);
+        stateLabel.setVisible(false);
+        acceptedLabel.setVisible(false);
+        indexLabel.setVisible(false);
+        voteNumLabel.setVisible(false);
+        prepareNumLabel.setVisible(false);
+        promiseNumLabel.setVisible(false);
+        ballotNumLabel.setVisible(false);
+        decreeLabel.setVisible(false);
     }
 }

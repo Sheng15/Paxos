@@ -36,4 +36,8 @@ public class DecreePanel extends JPanel {
         this.add(buttonDecree);
     }
 
+    public void setInvisiable(){
+        this.decreeBox.setVisible(false);
+        this.buttonDecree.setVisible(false);
+    }
 }

@@ -23,6 +23,9 @@ public class DecreeController {
             if (app.hasAcceptedProposalFlag) {
                 String message =  "You have already accepted a proposal!\n      You cannot write a new decree now!";
                 app.showErrorMessage(message,null);
+            }else if (app.consensusFlag){
+                String message =  "We have already reach a consensus!\n      You cannot write a new decree now!";
+                app.showErrorMessage(message,null);
             }else{
                 app.setDecree(decree);
                 app.StatePanel.showDecree(decree);

@@ -98,6 +98,8 @@ public class App extends JFrame {
         setTitle("Server");
         this.headPanel.setButtonPrepareInvisiable();
         this.headPanel.setButtonVoteInvisiable();
+        this.StatePanel.setInvisiable();
+        this.decreePanel.setInvisiable();
 
         peerListPanel.peerListModel.addElement("Server: " + processName);
 

@@ -5,6 +5,7 @@ import server.ProcessModel;
 import shared.*;
 
 import javax.net.SocketFactory;
+import javax.swing.*;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -137,18 +138,24 @@ public class MessageReceiver extends ProcessConnection {
 
 
     public void messageHandler(MsgModel message){
+        String text;
         if (message instanceof PrepareRequestMessage) {
             int prepareNum = ((PrepareRequestMessage) message).getPrepareNum();
-            if (prepareNum >= app.getPromiseNum()) {
+            if(app.consensusFlag){
+                notifyConsensus();
+            } else if (prepareNum >= app.getPromiseNum()&& !message.getOutSet().equals(app.getProcessName(),app.getIndex())) {
                 app.setPromiseNum(prepareNum);
                 ProcessModel outSet = new ProcessModel(app.getProcessName(), app.getIndex());
                 ProcessModel destination = message.getOutSet();
                 PromiseMessage promiseMessage = new PromiseMessage(outSet, destination, prepareNum, app.getAcceptedProposal());
                 app.processConnection.messageQueue.add(promiseMessage);
-                System.out.println("you have my promise now");
+                app.hasPromiseFromQuorumFlag = false;
+                ProcessModel from = message.getOutSet();
+                text = "Promise to "+from.getProcessName() + "(index: " + from.getProcessIndex() + ")" + "\n" ;
+                app.displayPanel.display(text);
             } else {
                 ProcessModel from = message.getOutSet();
-                String text = "Ingore prepare request from process " + from.getProcessName() + "(index: " + from.getProcessIndex() + ")" + "\n" + "\n";
+                text = "Ingore prepare request from process " + from.getProcessName() + "(index: " + from.getProcessIndex() + ")" + "\n" ;
                 app.displayPanel.display(text);
             }
         } else if (message instanceof PromiseMessage) {
@@ -156,7 +163,8 @@ public class MessageReceiver extends ProcessConnection {
             ProcessModel destination = message.getDestination();
             if (app.onPrepareFlag) {  //I am waiting for response of my prepare request!
                 if (destination.equals(app.getProcessName(), app.getIndex()) &&
-                        ((PromiseMessage) message).getPrepareNum() == app.onPrepareNum) {
+                        ((PromiseMessage) message).getPrepareNum() == app.onPrepareNum&&
+                        !message.getOutSet().equals(app.getProcessName(),app.getIndex())) {
                     app.promiseList.add(outset);
                     System.out.println("get a promise");
                 } else {
@@ -167,9 +175,14 @@ public class MessageReceiver extends ProcessConnection {
         }else if (message instanceof AcceptRequestMessage) {
             Proposal proposal = ((AcceptRequestMessage) message).getProposal();
             int ballotNum = proposal.getBallotNum();
-
+            ProcessModel from = message.getOutSet();
             if(ballotNum<app.getPromiseNum()){
-                System.out.println("ignore a proposal!");
+                text = "ignore a proposal from: " +from.getProcessName() + "(index: " + from.getProcessIndex() + ")" + "\n" ;
+                app.displayPanel.display(text);
+            }else if (app.consensusFlag){
+                notifyConsensus();
+            } else if(message.getOutSet().equals(app.getProcessName(),app.getIndex())){
+                //ingore
             }else{
                 app.setPromiseNum(ballotNum);
                 app.setAcceptedProposal(proposal);
@@ -178,7 +191,8 @@ public class MessageReceiver extends ProcessConnection {
                 ProcessModel destination = message.getOutSet();
                 AcceptRequestResponseMessage acceptRequestResponseMessage = new AcceptRequestResponseMessage(outSet,destination,proposal);
                 app.processConnection.messageQueue.add(acceptRequestResponseMessage);
-                System.out.println("I accept your proposal!");
+                text = "Accept proposal from :"+from.getProcessName() + "(index: " + from.getProcessIndex() + ")" + "\n" ;
+                app.displayPanel.display(text);
             }
         }else if (message instanceof AcceptRequestResponseMessage) {
             ProcessModel outset = message.getOutSet();
@@ -186,7 +200,8 @@ public class MessageReceiver extends ProcessConnection {
             Proposal proposal = ((AcceptRequestResponseMessage) message).getProposal();
             if (app.onVoteFlag) {  //I am waiting for response of my accept request!
                 if (destination.equals(app.getProcessName(), app.getIndex()) &&
-                        proposal.equal(app.onVoteProposal)) {
+                        proposal.equal(app.onVoteProposal)
+                        &&!message.getOutSet().equals(app.getProcessName(),app.getIndex())) {
                     app.acceptedList.add(outset);
                     System.out.println("accepted");
                 } else {
@@ -194,6 +209,12 @@ public class MessageReceiver extends ProcessConnection {
                     System.out.println("ignore a accept response of other process ");
                 }
             }
+        }else if (message instanceof ConsensusNotificationMessage ){
+            Proposal consensus = ((ConsensusNotificationMessage) message).getProposal();
+            app.consensusFlag = true;
+            app.setAcceptedProposal(consensus);
+            JOptionPane.showMessageDialog(app,"We reach an consensus now!","Congras",JOptionPane.INFORMATION_MESSAGE);
+
         }else {
             System.out.println("Message not recognized!");
         }
@@ -201,6 +222,14 @@ public class MessageReceiver extends ProcessConnection {
 
     private long delay(){
         return Math.round(Math.random()*1000);
+    }
+
+    private void notifyConsensus(){
+        Proposal consensus = app.getAcceptedProposal();
+        ProcessModel outSet = new ProcessModel(app.getProcessName(), app.getIndex());
+        ProcessModel destination = new ProcessModel();
+        ConsensusNotificationMessage consensusNotificationMessage = new ConsensusNotificationMessage(outSet,destination,consensus);
+        app.processConnection.messageQueue.add(consensusNotificationMessage);
     }
 
 

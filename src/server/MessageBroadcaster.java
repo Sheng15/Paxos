@@ -22,24 +22,32 @@ public class MessageBroadcaster extends ProcessConnection {
     public void run() {
         while (true) {
             ArrayList<ProcessModel> connectedProcesses = (ArrayList<ProcessModel>) state.getConnectedProcesses().clone();
+            if (messageQueue.size() > 0) {
+                ArrayList<MsgModel> msgs = (ArrayList<MsgModel>) messageQueue.clone();
+                String message;
+                // do not send message  back to origin
+                //msgs.removeIf(m -> m.getOutSet().getProcessIndex()==process.getProcessIndex());
+
+                for (int i = 0; i < connectedProcesses.size(); i++) {
+                    ProcessModel process = connectedProcesses.get(i);
+                    if (Math.random() > 0.5) {
+                        CommunicationUtils.sendMessages(process.getOs(), msgs);
+                        message = "send message to " + process.getProcessName() + "(index: " + process.getProcessIndex() + ").\n";
+                        app.displayPanel.display(message);
+                    } else {
+                        message = "error when sending message to process " + process.getProcessName() + "(index: " + process.getProcessIndex() + ").\n";
+                        app.displayPanel.display(message);
+                    }
+                    if (i == connectedProcesses.size() - 1) {
+                        messageQueue.clear();
+                        //System.out.println("Clear!");
+                    }
+                }
+            }
             for (int i = 0; i < connectedProcesses.size(); i++) {
                 ProcessModel process = connectedProcesses.get(i);
                 try {
                     CommunicationUtils.sendVoteNum(process.getOs(),connectedProcesses.size());
-
-                    // if the size of server messages is more than 0, it will send to all processes, then clear all
-                    // messages, so the server only sends the new messages at a moment.
-                    if (messageQueue.size() > 0) {
-                        ArrayList<MsgModel> msgs = (ArrayList<MsgModel>) messageQueue.clone();
-                        // do not send message  back to origin
-                        msgs.removeIf(m -> m.getOutSet().getProcessIndex()==process.getProcessIndex());
-                        CommunicationUtils.sendMessages(process.getOs(), msgs);
-                        System.out.println("send to "+process.getProcessIndex());
-                        if (i == connectedProcesses.size() - 1) {
-                            messageQueue.clear();
-                            //System.out.println("Clear!");
-                        }
-                    }
 
                     // send notification about peers
                     if (sendNotificationFlag) {

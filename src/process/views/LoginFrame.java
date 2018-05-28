@@ -44,7 +44,7 @@ public class LoginFrame extends JFrame {
         hostLabel.setBounds(10,30,80,18);
         hostField.setText("localhost");
 
-        JLabel usernameLabel = new JLabel("Process Name:", JLabel.RIGHT);
+        JLabel usernameLabel = new JLabel("Name:", JLabel.RIGHT);
         usernameLabel.setLabelFor(processNameField);
         usernameLabel.setBounds(10,70,80,18);
 

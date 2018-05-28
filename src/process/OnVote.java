@@ -2,7 +2,10 @@ package process;
 
 import process.views.App;
 import server.ProcessModel;
+import shared.CommunicationUtils;
+import shared.ConsensusNotificationMessage;
 import shared.MsgModel;
+import shared.Proposal;
 
 import javax.swing.*;
 import java.util.ArrayList;
@@ -31,8 +34,16 @@ public class OnVote extends TimerTask{
             System.out.println("Accepted by quorum");
             app.onVoteFlag = false;
             app.consensusFlag= true;
+            Proposal consensus = new Proposal(app.getVoteNum(),app.getDecree());
+            ProcessModel outSet = new ProcessModel(app.getProcessName(), app.getIndex());
+            ProcessModel destination = new ProcessModel();
+            ConsensusNotificationMessage consensusNotificationMessage = new ConsensusNotificationMessage(outSet,destination,consensus);
+            for (int i=0;i<3;i++){
+                app.processConnection.messageQueue.add(consensusNotificationMessage);
+            }
+            this.app.setAcceptedProposal(consensus);
             message = message+"Your Proposal is Accepted by the Ballot's Quorum!"+"\n";
-            JOptionPane.showMessageDialog(app,"You Get Promise from the Ballot's Quorum!","Congras",JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(app,"We reach an consensus now!","Congras",JOptionPane.INFORMATION_MESSAGE);
         }else{
             app.onVoteFlag = false;
             message = message+"Your Proposal Failed to get acception from the Ballot's Quorum!"+"\n";

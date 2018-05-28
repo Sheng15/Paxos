@@ -81,18 +81,21 @@ public class HeadPanelController {
             }else if(app.getDecree()==null) {
                 app.showErrorMessage("Write your decree before you start your vote!", "ERROR!");
             }else{
+                app.acceptedList.clear();
                 ProcessModel outSet = new ProcessModel(app.getProcessName(),app.getIndex());
                 ProcessModel destination = new ProcessModel();//index is -1,all process will accrpt this request,
-                Proposal proposal = new Proposal(-1,null);
-                if(app.hasAcceptedProposalFlag){
-                    proposal = app.getAcceptedProposal();
-                } else {
-                    proposal = new Proposal(app.getPrepareNum(),app.getDecree());
-                }
+                Proposal proposal;
+                proposal = new Proposal(app.getPrepareNum(),app.getDecree());
+
                 AcceptRequestMessage acceptRequestMessage = new AcceptRequestMessage(outSet,destination,proposal);
                 app.processConnection.messageQueue.add(acceptRequestMessage);
+
+                app.setAcceptedProposal(proposal);
+                app.acceptedList.add(outSet);//of course you accept proposal from yourself
+
                 app.onVoteFlag = true;//You have sent a accept request and waite for response now!
                 app.onVoteProposal = proposal;
+                app.hasPromiseFromQuorumFlag = false;
 
                 Timer timer = new Timer();
                 OnVote onVoteTask = new OnVote(app);
